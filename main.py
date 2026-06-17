@@ -1,5 +1,6 @@
 import ssl
 import socket
+import os
 from datetime import datetime
 from urllib.parse import urlparse
 import dns.resolver
@@ -8,12 +9,20 @@ from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any
 
+servers = []
+render_external_url = os.environ.get("RENDER_EXTERNAL_URL")
+if render_external_url:
+    servers.append({"url": render_external_url, "description": "Render Deployment"})
+else:
+    servers.append({"url": "http://127.0.0.1:8000", "description": "Localhost"})
+
 app = FastAPI(
     title="Website Security Auditor API",
     description="API to perform comprehensive security audits on target websites. Suitable for integration with OpenAI Agent Builder.",
     version="1.0.0",
     docs_url="/docs",
-    openapi_url="/openapi.json"
+    openapi_url="/openapi.json",
+    servers=servers
 )
 
 class ScanRequest(BaseModel):
